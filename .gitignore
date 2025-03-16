@@ -1,0 +1,18 @@
+# Игнорировать все файлы и папки
+*
+
+# Отслеживание package.json
+#!package.json
+!.gitignore
+
+# /--/ MainService.ts
+!/src/
+#!/src/index.ts
+!/src/era/
+!/src/era/rt_labs/
+!/src/era/rt_labs/services/
+!/src/era/rt_labs/services/MainService.ts
+
+# Отслеживать все файлы внутри папки src/era/rt_labs/services/
+#!/src/era/rt_labs/services/**
+
