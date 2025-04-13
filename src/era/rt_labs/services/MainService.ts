@@ -43,92 +43,35 @@ class MainService extends Service {
 
 
         // Пользователи
-        this._users = new RootUsers(this.context);
-        //// Рабочий график платформы (platform/timetable/TimeTables)
-        //this._timeTables = new TimeTables(this.context);
+        //this._users = new RootUsers(this.context);
 
-        /* ПОКА НЕ ТРЕБУЕТСЯ
-        // РАЗГОВОРЫ 
-        // Новые 
-        this._currentConnections = new CurrentConnections(this.context);
-        this._currentConnections.onAfterInsert(this.afterInsertCurrentConnections.bind(this));
-        // Завершенные 
-        this._archiveConnections = new ArchiveConnections(this.context);
-        this._archiveConnections.onAfterInsert(this.afterInsertArchiveConnections.bind(this));
-        */
+        // РАЗГОВОРЫ
+        // Завершенные (callcenter/connections/Connection)
+        //this._archiveConnections = new ArchiveConnections(this.context);
+        //this._archiveConnections.onAfterInsert(this.afterInsertArchiveConnections.bind(this));
 
         // ЗВОНКИ 
-        //// Новые
-        //this._сurrentSeances = new CurrentSeances(this.context);
-        //this._сurrentSeances.onAfterInsert(this.afterInsertCurrentSeances.bind(this));
         // Завершенные (callcenter/seances/ArchiveSeances)
         this._archiveSeances = new ArchiveSeances(this.context, { realtime: true });
         this._archiveSeances.onAfterInsert(this.afterInsertArchiveSeances.bind(this));
         //this._archiveSeances.onAfterUpdate(this.afterInsertArchiveSeances.bind(this));
-
 
         // ОЧЕРЕДИ
         // Новый звонок в очередь model/callcenter/acd/CurrentACDCalls
         this._currentACDCalls = new CurrentACDCalls(this.context);
         this._currentACDCalls.onAfterInsert(this.afterInsertCurrentACDCalls.bind(this));
 
-        // Локально в процедуре
-        ////// Вхоящие звонки
-        ////this._incomingCalls = new IncomingCalls(this.context);
-        //// Оценки качества
-        //this._ratings = new Ratings(this.context);
-
         this._incomingCalls = new IncomingCalls(this.context); // Входящие из сценария
-
-        /* НЕ АКТУАЛЬНО
-        // "По ЧС"
-        this._blacklistTypes = new BlackListTypes(this.context);
-
-        this._blacklists = new BlackLists(this.context);
-        this._blacklists.onAfterUpdate(this.afterUpdateBlacklists.bind(this));
-
-        this._recommendedBLs = new RecommendedForBlacklists(this.context);
-        this._recommendedBLs.onAfterUpdate(this.afterUpdateRecommendedBls.bind(this));
-        */
-
-
-        //// "Звонки в очередь"
-        //this._customAcdCalls = new AcdCalls(this.context);
-
-        // Дата/время для проверки часового интервала,
-        // переопределяется каждый час
-        //this._hourInterval = GlobalUtils.nowTimeStamp();
 
 
         this.load();
     }
 
 
-    private _users: IRootUsers;                       // Пользователи (для ЧС)
-
-    //private _currentConnections: ICurrentConnections; // Текущие разговоры
+    private _currentACDCalls: ICurrentACDCalls;       // Текущие звонки в очередь
     //private _archiveConnections: IArchiveConnections; // Завершенные разговоры
-
-    private _currentACDCalls: ICurrentACDCalls;         // Текущие звонки в очередь
-
-    //private _сurrentSeances: ICurrentSeances;         // Текущие звонки
-    private _archiveSeances: IArchiveSeances;           // Завершенные звонки
-
-
-    // Проектные
-    //private _customAcdCalls: IAcdCalls; // "Звонки в очередь"  
-
-    // Локально в процедуре
-    ////private _incomingCalls: IIncomingCalls; // "Входящие звонки"
-    //private _ratings: IRatings; // Оценки качества
-
-    private _incomingCalls: IIncomingCalls; // Входящие из сценария
-
-    //private _blacklists: IBlackLists; // ЧС
-    //private _blacklistTypes: IBlackListTypes; // Типы ЧС
-    //private _recommendedBLs: IRecommendedForBlacklists; // Рекомендовано для ЧС
-
-    //private _hourInterval: number;
+    private _archiveSeances: IArchiveSeances;         // Завершенные звонки
+    private _incomingCalls: IIncomingCalls;           // Входящие из сценария
 
 
     async onInit() {
@@ -155,23 +98,6 @@ class MainService extends Service {
 
             // onTimerCode
 
-            /* НЕ АВТУАЛЬНО
-            const now = GlobalUtils.nowTimeStamp();
-            //const oneHour = 3600000; // 1 час в миллисекундах
-            const oneHour = 60000; // 1 минута
-
-            // Прошел 1 час
-            if (now - this._hourInterval > oneHour) {
-
-                //this.log.debug("onTimer -> this.startTime", this.startTime);
-
-                //this.deleteTempPhonesFromBlacklist(); // Удаление временных номеров
-                this._hourInterval = GlobalUtils.nowTimeStamp();  // Переопределение времени
-
-                //this.log.debug("onTimer -> this.startTime", this.startTime);
-            }
-            //this.log.debug("onTimer -> this.startTime", this.startTime);
-            */
         }
         catch (e) {
             this.log.exception("onTimer", e);
@@ -179,58 +105,24 @@ class MainService extends Service {
     }
 
 
-    //// Новый разговор
-    //async afterInsertCurrentConnections(params_: IDataUpdateParams<ICurrentConnection>) {
-    //    try {
-    //        //console.log(`getNewCurrentConnectionsInsert: ${params_.updateKind} id=${params_.id}`);
-    //        this.log.debug('afterInsertCurrentConnections -> params_:\n', params_);
-    //        console.log(params_.newData);  // Выводим в лог всю сущность
-    //
-    //        /*
-    //        // Создание новой сделки при входяшем звонке
-    //        await this._tickets.addNew(ticket_ => {
-    //            ticket_.number = "123";
-    //            ticket_.state = "new";
-    //            ticket_.description = `Звонок: ${params_.entity?.sideA?.number} -> ${params_.entity?.sideB?.number}`;
-    //        });
-    //        */
-    //
-    //    }
-    //    catch (e: any) {
-    //        this.log.exception("afterInsertCurrentConnections", e);
-    //    }
-    //}
+    // Завершенный разговор
+    async afterInsertArchiveConnections(params_: IDataUpdateParams<IArchiveConnection>) {
+        try {
+            //console.log(`getNewCurrentConnectionsInsert: ${params_.updateKind} id=${params_.id}`);
+            this.log.debug('afterInsertArchiveConnections -> params_:\n', params_);
+            console.log(params_.newData);  // ...
+
+        }
+        catch (e: any) {
+            this.log.exception("afterInsertArchiveConnections", e);
+        }
+    }
 
 
-    //// Завершенный разговор
-    //async afterInsertArchiveConnections(params_: IDataUpdateParams<IArchiveConnection>) {
-    //    try {
-    //        //console.log(`getNewCurrentConnectionsInsert: ${params_.updateKind} id=${params_.id}`);
-    //        this.log.debug('afterInsertArchiveConnections -> params_:\n', params_);
-    //        console.log(params_.newData);  // ...
-    //
-    //    }
-    //    catch (e: any) {
-    //        this.log.exception("afterInsertArchiveConnections", e);
-    //    }
-    //}
-
-
-    //// Новый звонок
-    //async afterInsertCurrentSeances(params_: IDataUpdateParams<ICurrentSeance>) {
-    //    try {
-    //        this.log.debug('afterInsertCurrentSeances -> params_:\n', params_);
-    //        console.log(params_.newData);  // ...
-    //
-    //    }
-    //    catch (e: any) {
-    //        this.log.exception("afterInsertCurrentSeances", e);
-    //    }
-    //}
-
-
-    // Новый звонок в очередь
-    // (Для обновления incomingCalls.acdQueue_id)
+    /**
+    * Новый звонок в очередь (для обновления incomingCalls.acdQueue_id)
+    * @param params_ - Данные сеанса звонка
+    */
     async afterInsertCurrentACDCalls(params_: IDataUpdateParams<ICurrentACDCall>) {
         this.log.debug('afterInsertCurrentACDCalls -> params_:\n', params_);
         //console.log(params_.newData);
@@ -248,7 +140,7 @@ class MainService extends Service {
             const filter = FilterBuilder.equals("seanceId", seanceId);
             const incomingCallsTmp = new IncomingCalls(this.context);
             const incomingCalls = await incomingCallsTmp.loadAll({ select: { interval, filter } });
-            //this.log.debug('getRating_exec -> incomingCalls', incomingCalls);
+            this.log.debug('afterInsertCurrentACDCalls -> incomingCalls', incomingCalls);
 
             if (incomingCalls.length === 1) { // Должна быть только одна строка
                 const incomingCall = incomingCalls[0];
@@ -261,14 +153,17 @@ class MainService extends Service {
     };
 
 
-    // Завершенный звонок
-    // (Для обновления доп параметров по завершении звонка)
+    /**
+    * Завершенный звонок (обновление дополнительных параметров)
+    * @param params_ - Данные сеанса звонка
+    */
+    // Обновение пользователя работает некорректно,
+    // Пользователь есть, даже есть нет давлога. а есть только попоытка переключания
     async afterInsertArchiveSeances(params_: IDataUpdateParams<IArchiveSeance>) {
         this.log.debug('afterInsertArchiveSeances -> params_:\n', params_);
-        //console.log(params_.newData);  // ...
 
         try {
-            // Параметры
+            // 1. Параметры
             const { id: seanceId, newData } = params_;
             const {
                 timeStart,
@@ -282,14 +177,36 @@ class MainService extends Service {
                 result,
                 sidesB
             } = newData || {};
-            const isDialogue = durationTalk > 0;
+            // Определяем Признак диалога по обшей продолжительности разговора
+            //const isDialogue = durationTalk > 0;
 
-            // Обновление звонка
+            /*
+            // Получаем user_id из последнего элемента sidesB с kind="user"
+            // Тут последний пользователь даже без диалога, попоытки переключения на оператора.
+            // Логику перенес м мониторинг новых звонков
+            const getLastUserId = (sides: any[] | undefined): string | undefined => {
+                return sides?.filter(side => side?.kind === "user").pop()?.user_id;
+            };
+            const userId = getLastUserId(sidesB);
+            const user = await this.getUserObject(userId);
+            
+            // true, если user существует
+            const isDialogue: boolean = user !== undefined;
+            */
+
+
+            // 2. Поиск нужного оператора
+            const user = await this.getUserFromArchiveSeances(seanceId);
+
+            // true, если user существует
+            const isDialogue: boolean = user !== undefined;
+
+
+            // 3. Обновление звонка
             const interval = FilterBuilder.fixInterval("full")
             const filter = FilterBuilder.equals("seanceId", seanceId);
             const incomingCallsTmp = new IncomingCalls(this.context);
             const incomingCalls = await incomingCallsTmp.loadAll({ select: { interval, filter } });
-            //this.log.debug('getRating_exec -> incomingCalls', incomingCalls);
 
             if (incomingCalls.length === 1) { // Должна быть только одна строка
                 const incomingCall = incomingCalls[0];
@@ -304,6 +221,7 @@ class MainService extends Service {
                 incomingCall.stopSideKind = (stopSideKind);
                 incomingCall.isAcd = containsKind(sidesB, 'acd');
                 incomingCall.isDialogue = isDialogue;
+                incomingCall.user = user;
                 //incomingCall.isDialogue = containsKind(JSON.parse(sidesB), 'user');
             }
         }
@@ -313,419 +231,14 @@ class MainService extends Service {
     }
 
 
-    /* ОТДЕЛЬНОЕ ПРИЛОЖЕНИЕ
-    // Мониторинг добавления/обновления "ЧС"
-    async afterUpdateBlacklists(params_: IDataUpdateParams<IBaseEntity>) {
-        //this.log.debug('afterUpdateBlacklists -> params_:\n', params_);
-
-        try {
-            // Добавление или обновление
-            if (params_.updateKind === EUpdateKind.Insert || params_.updateKind === EUpdateKind.Modify) {
-                //this.log.debug('afterUpdateBlacklists, params_:', params_);
-
-                // Параметры
-                const modifierId = params_.modifier_id;
-                const phone = params_.entity?.getValue('phone');
-
-                // Данные сессии
-                const session = DataFactory.sessionInfo;
-                //this.log.debug('afterUpdateBlacklists -> sessionInfo:\n', session);
-
-                // Ключа integration_point_id нет в явном виде, 
-                // получаем значение через приведение к JSON
-                const integrationPointId = JSON.parse(JSON.stringify(session)).integration_point_id;
-                //this.log.debug('#integrationPointId: ', integrationPointId);
-
-                if (modifierId !== integrationPointId) {
-                    // При добавлении нового номера получаем insert, обновляем пользователя
-                    // и получаем modify (который нужно игнорировать)
-                    this.log.debug('afterUpdateBlacklists, params_:\n', params_);
-
-                    // 1. Обновляем пользователя "ЧС"
-                    //const user = await this._users.getByID(modifierId);
-                    const user = await this.getUser(modifierId);
-
-                    const blacklist = await this._blacklists.getByIDStrong(params_.id);
-                    blacklist.user = user;
-
-                    // 2. Проверяем и закрываем в "Рекомендовано для ЧС"
-                    //await this.closeInRecommended(phone);
-                    if (phone.trim().length > 0) { // Если есть номер
-                        var filter = FilterBuilder.and(FilterBuilder.equals("phone", phone), FilterBuilder.equals("isAdded", false))
-                        const recommendedBLs = await this._recommendedBLs.loadAll({ select: { filter } });
-                        //this.log.debug('recommendedBLs', recommendedBLs);
-
-                        if (recommendedBLs.length > 0) {
-                            for (let recommendedBL_ of recommendedBLs) {
-                                recommendedBL_.isAdded = true;
-                            };
-                        }
-                    }
-                }
-
-            } // params_.updateKind
-
-        }
-        catch (e) {
-            this.log.exception('afterUpdateBlacklists', e);
-        }
-    }
+    /**
+    * Поцедура -> "Входящий звонок"
+    * поверка признаков "ЧС" и "Рабочее время"
+    * сохранение нового звонка для отчетности
+    * возврат признаков "ЧС" и "Рабочее время"
     */
-
-    // ОТДЕЛЬНОЕ ПРИЛОЖЕНИЕ
-    //// Мониторинг добавления/обновления "Рекомендовано для ЧС"
-    //async afterUpdateRecommendedBls(params_: IDataUpdateParams<IBaseEntity>) {
-    //    this.log.debug('afterUpdateRecommendedBls -> params_:\n', params_);
-    //
-    //    try {
-    //        // Добавление И обновлене
-    //        if (params_.updateKind === EUpdateKind.Insert || params_.updateKind === EUpdateKind.Modify) {
-    //            //this.log.debug('afterUpdateRecommendedBls, params_:\n', params_);
-    //
-    //            // Параметры
-    //            const modifierId = params_.modifier_id;
-    //            const phone = params_.entity?.getValue('phone');
-    //
-    //            // Данные сессии
-    //            const session = DataFactory.sessionInfo;
-    //            //this.log.debug('sessionInfo: ', session);
-    //
-    //            // Ключа integration_point_id нет в явном виде,
-    //            // получаем значение через приведение к JSON
-    //            const integrationPointId = JSON.parse(JSON.stringify(session)).integration_point_id;
-    //            this.log.debug('#integrationPointId: ', integrationPointId);
-    //
-    //            if (modifierId !== integrationPointId) {
-    //                //this.log.debug('afterUpdateRecommendedBls, params_:\n', params_);
-    //
-    //                // 1. Обновление пользователя "ЧС"
-    //                const user = await this.getUser(modifierId);
-    //                const recommendedBLs = await this._recommendedBLs.getByIDStrong(params_.id);
-    //                recommendedBLs.user = user;
-    //
-    //                // 2. Если номер уже в ЧС, то обновляем как обработанный
-    //
-    //                // 3. Проверка числа рекомендаций для добавления в ЧС
-    //                // Пока не понял почему, но придобавлении через кнопку
-    //                // Insert не приходил в данную процедуру
-    //                //await this.checkAndAddToBlacklist(phone, modifierId)
-    //
-    //                /*
-    //                // 3. Добавление в ЧС по превышению числа рекомендаций
-    //                //var filter = FilterBuilder.equals('phone', phoneNumbers);
-    //                var filter = FilterBuilder.and(FilterBuilder.equals("phone", phone), FilterBuilder.equals("isAdded", false))
-    //                const recommendedBLs11 = await this._recommendedBLs.loadAll({ select: { filter } });
-    //                //this.log.debug('recommendedBLs', recommendedBLs);
-    //
-    //
-    //                // Проверяем число открытых рекомендаций
-    //                if (recommendedBLs11.length >= 5) {
-    //                    // ...
-    //                    // Отдельная процедура
-    //                    //(Кнопка "Добавить в ЧС" и ТУТ)
-    //                    this.log.debug('afterUpdateRecommendedBls -> В ЧС ПО ЧИСЛУ РЕКОМЕНДАЦИЙ');
-    //
-    //                    await this.addToBlacklist(phone, modifierId, false)
-    //                }
-    //                */
-    //            }
-    //        }
-    //    }
-    //    catch (e) {
-    //        this.log.exception('afterUpdateBlacklists', e);
-    //    }
-    //}
-
-
-    /* ОТДЕЛЬНОЕ ПРИЛОЖЕНИЕ
-    // Процедура -> получение пользователя
-    async getUser(userId: string | undefined) {
-        //this.log.debug('getUser -> userId: ', userId);
-
-        try {
-            let user: IRootUser | undefined = undefined
-
-            // Ищем пользователя в БД, если он есть
-            let filter = FilterBuilder.equals('id', userId);
-            const users = await this._users.loadAll({ select: { filter } });
-            if (users.length > 0) {
-                user = users[0]
-            }
-            this.log.debug('getUser -> user:\n', user);
-
-            return user;
-        }
-        catch (e) {
-            this.log.exception('getUser ', e);
-        }
-    }
-    */
-
-    /* НЕ АКТУАЛЬНО
-    // Процедура кнопки "Добавить в ЧС"
-    async buttonAddToBlacklist(invocation_: IInvocation) {
-        this.log.debug('buttonAddToBlacklist -> invocation_', invocation_);
-
-        try {
-            const phone = invocation_.request?.phone;
-            const user_id = invocation_.request?.user;
-
-            // Добавляем номер телефона в ЧС
-            await this.addToBlacklist(phone, user_id, true)
-            //this.log.debug('buttonAddToBlacklist -> invocation_', '### END');
-
-            return true;
-        }
-        catch (e) {
-            this.log.exception('buttonAddToBlacklist', e);
-
-            return false;
-        }
-    }
-    */
-
-    /* НЕ АКТУАЛЬНО
-    // Процедура кнопки "Рекомендовать для ЧС"
-    async buttonAddToRecommendedBlacklist(invocation_: IInvocation) {
-        this.log.debug('buttonAddToRecommendedBlacklist -> invocation_', invocation_);
-
-        try {
-            const phone = invocation_.request?.phone;
-            const user_id = invocation_.request?.user;
-
-            this.log.debug('phone', phone);
-            this.log.debug('user_id', user_id);
-
-            // Добавляем в "Рекомендовано для ЧС"
-            await this.addToRecommendedBlacklist(phone, user_id)
-            //this.log.debug('buttonAddToBlacklist -> invocation_', '### END');
-
-            // 2. Пверка числа рекомендаций для обавления в ЧС
-            await this.checkAndAddToBlacklist(phone, user_id)
-
-            return true;
-        }
-        catch (e) {
-            this.log.exception('buttonAddToRecommendedBlacklist', e);
-
-            return false;
-        }
-    }
-    */
-
-    /*
-    // Проедура обновления пользователя в ЧС
-    async updateUserInBlacklist(phone: string) {
-        this.log.debug('updateUserInBlacklist -> phone', phone);
-
-        try {
-            if (phone.trim().length > 0) {
-                // Если есть номер телефона
-                // Проверяем и закрываем его как обработанный в "Рекомендовано для ЧС"
-                var filter = FilterBuilder.and(FilterBuilder.equals("phone", phone), FilterBuilder.equals("isAdded", false))
-                const recommendedBLs = await this._recommendedBLs.loadAll({ select: { filter } });
-
-                if (recommendedBLs.length > 0) {
-                    // ...
-                    for (let recommendedBL_ of recommendedBLs) {
-                        recommendedBL_.isAdded = true;
-                    };
-                }
-            }
-        }
-        catch (e) {
-            this.log.exception('closeInRecommended', e);
-        }
-    }
-    */
-
-    /* НЕ АКТУАЛЬНО
-    // Проедура помечает "Рекомендованые для ЧС" как обработанные
-    async closeInRecommended(phone: string) {
-        this.log.debug('closeInRecommended -> phone', phone);
-
-        try {
-            if (phone.trim().length > 0) { // Если есть номер
-                var filter = FilterBuilder.and(FilterBuilder.equals("phone", phone), FilterBuilder.equals("isAdded", false))
-                const recommendedBLs = await this._recommendedBLs.loadAll({ select: { filter } });
-                //this.log.debug('recommendedBLs', recommendedBLs);
-
-                // Помечаем как обработанный
-                if (recommendedBLs.length > 0) {
-                    for (let recommendedBL_ of recommendedBLs) {
-                        recommendedBL_.isAdded = true;
-                    };
-                }
-            }
-        }
-        catch (e) {
-            this.log.exception('closeInRecommended', e);
-        }
-    }
-    */
-
-    /* НЕ АКТУАЛЬНО
-    // Проедура проверки числа рекомендаций 
-    // и добавления нового номера в "ЧС" по его превышению
-    async checkAndAddToBlacklist(phone: string, user_id: string | undefined) {
-        this.log.debug('checkAndAddToBlacklist -> phone', phone);
-
-        try {
-            // 2. Добавление в ЧС по превышению числа рекомендаций
-            //var filter = FilterBuilder.equals('phone', phoneNumbers);
-            var filter = FilterBuilder.and(FilterBuilder.equals("phone", phone), FilterBuilder.equals("isAdded", false))
-            const recommendedBLs = await this._recommendedBLs.loadAll({ select: { filter } });
-            //this.log.debug('recommendedBLs', recommendedBLs);
-
-            // Проверяем число открытых рекомендаций
-            if (recommendedBLs.length >= 5) {
-                // ...
-                // Отдельная процедура
-                //(Кнопка "Добавить в ЧС" и ТУТ)
-                this.log.debug('afterUpdateRecommendedBls -> В ЧС ПО ЧИСЛУ РЕКОМЕНДАЦИЙ');
-
-                await this.addToBlacklist(phone, user_id, false)
-            };
-        }
-        catch (e) {
-            this.log.exception('addToBlacklist', e);
-        }
-    }
-    */
-
-    /* НЕ АКТУАЛЬНО
-    // Проедура добавления нового номера в "ЧС"
-    async addToBlacklist(phone: string, user_id: string | undefined, isPermanent: boolean) {
-        this.log.debug('addToBlacklist -> phone', phone);
-
-        try {
-            if (phone.trim().length > 0) { // Если есть номер телефона
-                //this.log.debug('buttonAddToBlacklist_execute -> invocation_', '### Прошел проверку номера');
-
-                // Проверка на наличие номера в ЧС
-                var filter = FilterBuilder.equals('phone', phone);
-                const blacklists = await this._blacklists.loadAll({ select: { filter } });
-                //this.log.debug('blacklists', blacklists);
-
-                if (blacklists.length === 0) { // Если номера НЕТ в ЧС
-                    //console.log("Список пустой");
-
-                    // Пользователь
-                    var filter = FilterBuilder.equals('id', user_id);
-                    const users = await this._users.loadAll({ select: { filter } });
-
-                    // Тип ЧС по умолчанию general, ДОЛЖЕН быть предварительно создан
-                    // (чтобы гарантированно был тип ЧС, можно выделить отдельный тип "Дбавленные через кнопку"
-                    // с проверкой и созданием его если не найден)
-                    var filter = FilterBuilder.equals('code', 'general');
-                    const blacklistTypes = await this._blacklistTypes.loadAll({ select: { filter } });
-
-                    // Добавление в ЧС
-                    await this._blacklists.addNew(blacklist_ => {
-                        blacklist_.dttmInsert = new Date();
-                        blacklist_.type = blacklistTypes[0] //getFirstItemOrUndefined(blacklistTypes);
-                        blacklist_.phone = phone;
-                        blacklist_.isPermanent = isPermanent;
-                        blacklist_.user = getFirstItemOrUndefined(users);
-                    });
-                    //this.log.debug('blacklistTypes', blacklistTypes);
-                }
-                // Закрываем в "Рекомендованно для ЧС"
-                await this.closeInRecommended(phone);
-            }
-        }
-        catch (e) {
-            this.log.exception('addToBlacklist', e);
-        }
-    }
-    */
-
-    /* НЕ АКТУАЛЬНО
-    // Процедура удаления номера телефона из "ЧС"
-    async deleteTempPhonesFromBlacklist() {
-        this.log.debug('deleteTempPhonesFromBlacklist');
-
-        const toDelete: IBlackList[] = [];
-
-        try {
-            //const intervalDttm = new Date(date);
-            //this.log.debug('deleteTempPhonesFromBlacklist -> intervalDttm: ', intervalDttm);
-
-            let from = new Date(1900, 1, 1);
-            let to = new Date();  // to = new Date(2100, 1, 1);
-            to.setDate(to.getDate() - 1);  // Вычитаем 1 день
-            //to.setTime(to.getTime() - (1 * 60 * 60 * 1000)); // Вычитаем 1 час
-
-            const interval = [Converter.toDateTimeString(from), Converter.toDateTimeString(to)];
-            var filter = FilterBuilder.equals('isPermanent', false);
-            this.log.debug('interval: ', interval);
-
-            //var filter = FilterBuilder.and(["<=", ["property", "dttmInsert"], ["const", to]], ["===", ["property", "isPermanent"], ["const", false]])
-            //this.log.debug('interval: ', filter);
-            // ...
-            //var blacklists = await this._blacklists.loadAll({ select: { interval, filter } });
-            var blacklists = await this._blacklists.loadAll({ select: { filter } });
-            this.log.debug('blacklists: ', blacklists);
-
-            for (let blacklist_ of blacklists) {
-
-                // Доп. сравнение времени, поскольку в фильтре не учитывается часовой пояс
-                // (причину пока не понял)
-                if (blacklist_.dttmInsert < to) {
-                    toDelete.push(blacklist_);
-                }
-            }
-            //this.log.debug('toDelete: ', toDelete);
-            this.log.debug('\n-----');
-
-            //await this._blacklists.deleteByID
-
-
-
-        }
-        catch (e) {
-            this.log.exception('deleteTempPhonesFromBlacklist', e);
-        }
-    }
-    */
-
-
-    /* НЕ АКТУАЛЬНО
-    // Проедура добавления нового номера в "Рекомендовано для ЧС"
-    async addToRecommendedBlacklist(phone: string, user_id: string | undefined) {
-        this.log.debug('addToRecommendedBlacklist -> phone', phone);
-
-        try {
-            if (phone.trim().length > 0) { // Если есть номер телефона
-                //this.log.debug('addToRecommendedBlacklist -> invocation_', '### Прошел проверку номера');
-
-                // Пользователь
-                var filter = FilterBuilder.equals('id', user_id);
-                const users = await this._users.loadAll({ select: { filter } });
-
-                // Добавление в "Рекомендовано для ЧС"
-                await this._recommendedBLs.addNew(recommendedBLs_ => {
-                    recommendedBLs_.dttmInsert = new Date();
-                    recommendedBLs_.phone = phone;
-                    recommendedBLs_.user = getFirstItemOrUndefined(users);
-                    recommendedBLs_.isAdded = false
-                });
-
-            }
-        }
-        catch (e) {
-            this.log.exception('addToRecommendedBlacklist', e);
-        }
-    }
-    */
-
-
-    //Поцедура -> 
-    // поверка признаков "ЧС" и "Рабочее время"
-    // сохранение нового звонка для отчетности
-    // возврат признаков "ЧС" и "Рабочее время" 
     async incomingCall_exec(invocation_: IInvocation) {
-        this.log.debug('incomingCall_exec -> invocation_', invocation_);
+        //this.log.debug('incomingCall_exec -> invocation_', invocation_);
 
         try {
             // Параметры
@@ -735,7 +248,9 @@ class MainService extends Service {
             const calledId = toStringSafe(invocation_.request?.calledId);
             const callerId = toStringSafe(invocation_.request?.callerId);
 
+            /*
             // 1. Рабочий график платформы
+            // Пример проверки по всем расписаниям
             const timeTables: ITimeTables = new TimeTables(this.context);
             const timeTablesTmp = await timeTables.loadAll();
             //this.log.debug('timeTablesTmp', timeTablesTmp);
@@ -763,13 +278,42 @@ class MainService extends Service {
                 }
                 else {
                     // Добавить преобразовние schedule
-                    this.log.debug('getIncomingCallExec -> Ошибка проверки Графика работы: ', schedule);
+                    this.log.debug('incomingCall_exec -> Ошибка проверки Графика работы: ', schedule);
                 }
             };
+            */
+
+
+            // 1. Рабочий график
+            // Проверка по одному расписанию
+            const currentDttm: Date = new Date();
+            const scheduleId = '39ce9516-af7a-402e-b497-d37f90433ff0'
+            const schedule = await this.invoke('platform.HolderService', 'TimeTable_execute',
+                {
+                    id: scheduleId,
+                    parameters: {
+                        datetime: currentDttm
+                    }
+                });
+
+            let isNotWorking: boolean = false; // По умолчанию - рабочее время
+
+            // Если найден выходной
+            if (schedule.state === 'success') {
+                if (schedule.response?.result) {
+                    isNotWorking = true;
+                }
+            }
+            else {
+                // Добавить преобразовние schedule
+                this.log.debug('incomingCall_exec -> Ошибка проверки Графика работы: ', schedule);
+            }
+
 
             // 2. Проверка по ЧС
             const params = JSON.stringify({ phone: callerId });
             const blacklist = await this.invoke('blacklist.MainService', 'checkPhoneByBlacklist_exec', params);
+            //this.log.debug('incomingCall_exec -> blacklist', blacklist);
             //{"state":"success","response":{"result":false}}
 
             let isBlacklist = false
@@ -779,15 +323,13 @@ class MainService extends Service {
                 }
             }
             else {
-                // Добавить преобразовние blacklist
-                //const errorMessage = `incomingCall_exec -> Ошибка проверки ЧС: ${JSON.stringify(blacklist)}`;
                 this.log.debug('incomingCall_exec -> Ошибка проверки ЧС: ', blacklist);
             }
             //this.log.debug('blacklist: ', blacklist);
 
             // 3. Сохранение звонка
             // Через локальнцю переменую ошибка записи Entities ... are not ready ...
-            // Запись сработала только через объявление как this.
+            // Запись сработала только через глобальное объявление как this.///
             await this._incomingCalls.addNew(incomingCall_ => {
                 incomingCall_.insertDttm = new Date();
                 incomingCall_.seanceId = seanceId;
@@ -799,6 +341,7 @@ class MainService extends Service {
                 incomingCall_.isDialogue = false;
                 incomingCall_.isRating = false;
             });
+
 
             // 4. Возврат результата в сценарий
             return {
@@ -812,9 +355,11 @@ class MainService extends Service {
     }
 
 
-    //Поцедура -> сохранение оценок качества обслуживания
+    /**
+    * Поцедура -> "Cохранение оценок качества обслуживания"
+    */
     async rating_exec(invocation_: IInvocation) {
-        this.log.debug('rating_exec -> invocation_', invocation_);
+        //this.log.debug('rating_exec -> invocation_', invocation_);
 
         try {
             // Параметры
@@ -822,26 +367,33 @@ class MainService extends Service {
             const seanceId: string = request?.seanceId?.toString() ?? '';
             const { timeRating = 0, clarityRating = 0, friendlinessRating = 0, competenceRating = 0 } = request?.ratings ?? {};
 
-            // Общая оценка
-            const ratings: number[] = [timeRating, clarityRating, friendlinessRating, competenceRating];
-            // Берем минимальную исключая 0
-            const overallRating = Math.min(...ratings.filter(num => num !== 0));
+            // Проверка наличия хотя бы одной оценки
+            const hasAnyRating = [timeRating, clarityRating, friendlinessRating, competenceRating]
+                .some(rating => rating > 0);
+
+            // Общая оценка (только если есть хотя бы одна оценка)
+            const overallRating = hasAnyRating
+                ? Math.min(...[timeRating, clarityRating, friendlinessRating, competenceRating].filter(num => num !== 0))
+                : 0;
 
             // Обновление оценки
             const interval = FilterBuilder.fixInterval("full")
             const filter = FilterBuilder.equals("seanceId", seanceId);
-
             const incomingCallsTmp = new IncomingCalls(this.context);
             const incomingCalls = await incomingCallsTmp.loadAll({ select: { interval, filter } });
             //this.log.debug('getRating_exec -> incomingCalls', incomingCalls);
 
             if (incomingCalls.length === 1) { // Должна быть только одна строка
-                incomingCalls[0].isRating = true;
-                if (timeRating) { incomingCalls[0].timeRating = timeRating; }
-                if (clarityRating) { incomingCalls[0].clarityRating = clarityRating; }
-                if (friendlinessRating) { incomingCalls[0].friendlinessRating = friendlinessRating; }
-                if (competenceRating) { incomingCalls[0].competenceRating = competenceRating; }
-                if (overallRating) { incomingCalls[0].overallRating = overallRating; }
+                // Устанавливаем isRating только если есть хотя бы одна оценка
+                incomingCalls[0].isRating = hasAnyRating;
+
+                if (hasAnyRating) {
+                    if (timeRating) incomingCalls[0].timeRating = timeRating;
+                    if (clarityRating) incomingCalls[0].clarityRating = clarityRating;
+                    if (friendlinessRating) incomingCalls[0].friendlinessRating = friendlinessRating;
+                    if (competenceRating) incomingCalls[0].competenceRating = competenceRating;
+                    if (overallRating) incomingCalls[0].overallRating = overallRating;
+                }
             }
 
             // 4. Возврат результата
@@ -850,6 +402,99 @@ class MainService extends Service {
         catch (e) {
             this.log.exception('rating_exec -> exception', e);
             return false;
+        }
+    }
+
+
+    // Пользователь из звонка
+    async getUserFromArchiveSeances(seanceId: string): Promise<IRootUser | undefined> {
+        //this.log.debug('getUserFromArchiveSeances ->\nseanceId:', seanceId);
+
+        try {
+            let archiveConnectionsTmp = new ArchiveConnections(this.context);
+
+            // 1. Ищем диалоги по звонку
+            // "nativeDirection": "outer -> user",
+            // "direction": "in",
+            const filter = {
+                select:
+                {
+                    interval: FilterBuilder.fixInterval('full'),
+                    filter: FilterBuilder.and(
+                        FilterBuilder.equals('seance_link.id', seanceId),         // Диалоги по звонку
+                        FilterBuilder.equals('sideA.kind', 'outer'),              // Внешний абонент
+                        FilterBuilder.equals('sideB.kind', 'user'),               // Преключение на оператора
+                        FilterBuilder.equals('nativeDirection', 'outer -> user'), // Тип направления   
+                        [">", ["property", "durationTalk"], ["const", 0]]         // Время диалога (есть всегда)     
+                    )
+                }
+            };
+
+            const archiveConnections = await archiveConnectionsTmp.loadAll(filter);
+            //this.log.debug('getUserFromArchiveSeances ->\narchiveConnections:\n', archiveConnections);
+
+
+            //Даты:
+            //- 2025-04-04T10:58:01.448Z (старая)
+            //- 2025-04-04T10:59:01.448Z (новая)
+
+            //// 2. Сортировка по времени `timeStart` (от новых к старым) 
+            //// ПОСЛЕДНИЙ, кто говорил с абонентом
+            //const sortedConnections = [...archiveConnections].sort((a, b) =>
+            //    new Date(b.timeStart).getTime() - new Date(a.timeStart).getTime()
+            //);
+
+            // 2. Сортировка по времени `timeStart` (от старых к новым)
+            // ПЕРВЫЙ, кто говорил с абонентом
+            const sortedConnections = [...archiveConnections].sort((a, b) =>
+                new Date(a.timeStart).getTime() - new Date(b.timeStart).getTime()
+            );
+            this.log.debug('getUserFromArchiveSeances ->\nsortedConnections:\n', sortedConnections);
+
+
+            // 3. Получение `sideB.user_id` из первой записи 
+            const firstUserId = sortedConnections[0]?.sideB?.user_id;
+            //this.log.debug('getUserFromArchiveSeances ->\nlatestUserId:\n', firstUserId);
+
+
+            // 4. Ищем и возвращаем пользователя
+            const user = await this.getUserObject(firstUserId);
+
+            return user;
+        }
+        catch (e) {
+            this.log.exception('getUserObject -> exception', e);
+        }
+    }
+
+
+    /**
+    * Получает объект пользователя по идентификатору
+    * @param userId - Идентификатор пользователя (строка или undefined)
+    * @returns Промис, разрешающийся в объект пользователя (IRootUser) или undefined, если:
+    *          - пользователь не найден
+    *          - передан undefined вместо userId
+    *          - произошла ошибка при запросе
+    */
+    async getUserObject(userId: string | undefined): Promise<IRootUser | undefined> {
+        //this.log.debug('getUserObject -> userId', userId);
+
+        try {
+            let usersTmp: IRootUsers = new RootUsers(this.context);
+            let user: IRootUser | undefined = undefined;
+
+            // Ищем пользователя в БД, если он есть
+            let filter = FilterBuilder.equals('id', userId);
+            const users = await usersTmp.loadAll({ select: { filter } });
+            if (users.length > 0) {
+                user = users[0]
+            }
+            //this.log.debug('getUserObject -> user:\n', user);
+
+            return user;
+        }
+        catch (e) {
+            this.log.exception('getUserObject -> exception', e);
         }
     }
 
@@ -1108,7 +753,6 @@ class MainService extends Service {
 
         try {
             //console.log(invocation_.request);
-
             /*
             // ID пользователя
             const user_id = invocation_.request?.user_id;
@@ -1140,88 +784,18 @@ class MainService extends Service {
 
             const incomingCallsTmp = new IncomingCalls(this.context);
             const interval = [invocation_.request?.parameters?.timeStart, invocation_.request?.parameters?.timeFinish];
-
-            /*
-            const filter = [
-                "and",
-                [
-                    "or",
-                    [
-                        "isnull",
-                        [
-                            "parameter",
-                            isBlacklist
-                        ]
-                    ],
-                    [
-                        "==",
-                        [
-                            "property",
-                            "isBlacklist"
-                        ],
-                        [
-                            "bool",
-                            [
-                                "parameter",
-                                isBlacklist
-                            ]
-                        ]
-                    ]
-                ]
-            ];
-            */
             //this.log.debug('getReportIncomingCalls -> interval', interval);
             //this.log.debug('getReportIncomingCalls -> filter', filter);
 
-
-            //const filter = FilterBuilder.equals("isBlacklist", stringToBoolean(isBlacklist));
-            /*
-            const filter = FilterBuilder.and([
-                "or",
-                [
-                    "isnull",
-                    [
-                        "parameter",
-                        isBlacklist
-                    ]
-                ],
-                [
-                    "==",
-                    [
-                        "property",
-                        "isBlacklist"
-                    ],
-                    [
-                        "bool",
-                        [
-                            "parameter",
-                            isBlacklist
-                        ]
-                    ]
-                ]
-            ])
-            */
-            //const filter = FilterBuilder.or(FilterBuilder.isnull(isBlacklist), ["==", ["property", "isBlacklist"], ["bool", ["parameter", isBlacklist]]])
-            //!//const filter = FilterBuilder.or(["isnull", ["parameter", isBlacklist]], ["==", ["property", "isBlacklist"], ["const", isBlacklist]])
-            //const filter = FilterBuilder.and(FilterBuilder.or(FilterBuilder.isnull(isBlacklist), FilterBuilder.equals("isBlacklist", ["const", isBlacklist])))
-
-            //this.log.debug('getReportIncomingCalls -> interval', interval);
-            //this.log.debug('getReportIncomingCalls -> filter', filter);
-
-
-            // Пришел к использованию отдельных минифильтров под каждый фильтр
+            // Есть идея использования отдельных минифильтров под каждый фильтр
             // const isBlacklistFilter = ["or", ["isnull", ["const", "isBlacklist"]], ["==", ["property", "isBlacklist"], ["bool", ["const", isBlacklist]]]]
 
+            // С учетом признака ЧС
             const isBlacklistFilter = FilterBuilder.equals("isBlacklist", ["const", isBlacklist]);
 
-            //const filter = FilterBuilder.and(FilterBuilder.or(FilterBuilder.isnull(isBlacklist), isBlacklistFilter))
-            //const filter = FilterBuilder.and(FilterBuilder.or(FilterBuilder.emptyOrEquals("isBlacklist", "isBlacklist"), isBlacklistFilter));
-            //this.log.debug('getReportIncomingCalls -> interval', interval);
-            //this.log.debug('getReportIncomingCalls -> filter', filter);
-
+            // Прлучаем фильтр для выборки данных
             let selectFilter: any
-
-            if (isBlacklist !== null && isBlacklist !== undefined) {
+            if (isBlacklist !== null && isBlacklist !== undefined) { // Проверка признака ЧС
                 selectFilter = {
                     select: {
                         interval: interval,
@@ -1238,7 +812,6 @@ class MainService extends Service {
 
             // ///
             /* Рекомендации GPT
-            // Формируем фильтр для выборки данных
             const selectFilter = {
                 select: {
                     interval: interval,
